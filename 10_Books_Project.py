@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from pydantic import BaseModel, Field, Optional
+from pydantic import BaseModel, Field
 
 app = FastAPI()
 
@@ -20,11 +20,24 @@ class Book:
         self.rating = rating
 
 class BookRequest(BaseModel):
-    id: Optional[id]
+    id: id
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
     descreption: str = Field(min_length=1, max_length=100)
     rating: int = Field(gt=0, lt=6)
+
+    class Config:
+
+        schema_extra = {
+
+            'example' : {
+
+                'title' : 'Eneter name of your new book',
+                'author' : 'Enter your name',
+                'descreption' : 'Enter the Descreption of your new book',
+                'rating' : 5
+            }
+        }
 
 
 BOOKS = [
