@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -40,7 +40,7 @@ def read_all_books():
 
 
 @app.get('/books/{book_id}')
-def read_book(book_id: int):
+def read_book(book_id: int = Path(gt=0)):
     for book in BOOKS:
 
         if book.id == book_id:
@@ -82,7 +82,7 @@ def create_book(book_request: BookRequest):
 
 
 
-def find_book_id(book: Book):
+def find_book_id(book: Book = Path(gt=0)):
     if len(BOOKS) > 0:
         book.id = BOOKS[-1].id + 1
     else:
@@ -100,7 +100,7 @@ def update_book(book: BookRequest):
 
 
 @app.delete('/books/{book_id}')
-def delete_book(book_id: int):
+def delete_book(book_id: int = Path(gt=0)):
 
     for x in range(len(BOOKS)):
 
