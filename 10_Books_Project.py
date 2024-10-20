@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, Query
 from pydantic import BaseModel, Field
 
 app = FastAPI()
@@ -51,7 +51,7 @@ def read_book(book_id: int = Path(gt=0)):
 
 
 @app.get('/books/')
-def read_book_by_rating(book_rating: int):
+def read_book_by_rating(book_rating: int = Query(gt=0, lt=6)):
     books_to_return = []
 
     for books in BOOKS:
@@ -82,7 +82,7 @@ def create_book(book_request: BookRequest):
 
 
 
-def find_book_id(book: Book = Path(gt=0)):
+def find_book_id(book: Book):
     if len(BOOKS) > 0:
         book.id = BOOKS[-1].id + 1
     else:
