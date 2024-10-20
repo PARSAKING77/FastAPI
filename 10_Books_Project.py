@@ -82,8 +82,20 @@ def find_book_id(book: Book):
 
 @app.put('/books/update_book')
 def update_book(book: BookRequest):
-    
+
     for x in range(len(BOOKS)):
 
         if BOOKS[x].id == book.id:
             BOOKS[x] = book
+
+
+@app.delete('/books/{book_id}')
+def delete_book(book_id: int):
+
+    for x in range(len(BOOKS)):
+
+        if BOOKS[x].id == book_id:
+
+            BOOKS.pop(x)
+
+            break
