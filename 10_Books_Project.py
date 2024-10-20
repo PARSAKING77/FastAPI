@@ -15,10 +15,10 @@ class Book:
 
 
 class BookRequest(BaseModel):
-    id: int
+    id: int | None
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
-    description: str = Field(min_length=1, max_length=100)  # Corrected spelling
+    description: str = Field(min_length=1, max_length=100)  
     rating: int = Field(gt=0, lt=6)
 
 
@@ -48,6 +48,16 @@ def create_book(book_request: BookRequest):
 
     return new_book
 
+@app.get('/books/')
+def read_book_by_rating(book_rating: int):
+    books_to_return = []
+
+    for books in BOOKS:
+        if book.rating == book_rating:
+
+            books_to_return.append(book)
+    return books_to_return
+
 
 
 def find_book_id(book: Book):
@@ -68,3 +78,10 @@ def read_book(book_id: int):
             return book
             
     return {"error": "Book not found"}
+
+@app.post('/create-book')
+def create_book(book_request: BookRequest):
+    new_book = Book(**book_request.dict())
+
+    find_book_id(new_book)
+    BOOKS.append(new_book)  
