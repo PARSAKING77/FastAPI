@@ -15,7 +15,7 @@ class Book:
 
 
 class BookRequest(BaseModel):
-    id: int | None
+    id: int
     title: str = Field(min_length=3)
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)  
@@ -39,14 +39,16 @@ def read_all_books():
 
 
 
-@app.post('/create-book')
-def create_book(book_request: BookRequest):
-    new_book = Book(**book_request.dict())
+@app.get('/books/{book_id}')
+def read_book(book_id: int):
+    for book in BOOKS:
 
-    find_book_id(new_book)
-    BOOKS.append(new_book)  
+        if book.id == book_id:
+            return book
+            
+    return {"error": "Book not found"}
 
-    return new_book
+
 
 @app.get('/books/')
 def read_book_by_rating(book_rating: int):
@@ -56,7 +58,17 @@ def read_book_by_rating(book_rating: int):
         if book.rating == book_rating:
 
             books_to_return.append(book)
-    return books_to_return
+
+        return books_to_return
+
+
+
+@app.post('/create-book')
+def create_book(book_request: BookRequest):
+    new_book = Book(**book_request.dict())
+
+    find_book_id(new_book)
+    BOOKS.append(new_book)  
 
 
 
@@ -68,20 +80,10 @@ def find_book_id(book: Book):
     return book
 
 
+@app.put('/books/update_book')
+def update_book(book: BookRequest):
+    
+    for x in range(len(BOOKS)):
 
-@app.get('/books/{book_id}')
-
-def read_book(book_id: int):
-    for book in BOOKS:
-
-        if book.id == book_id:
-            return book
-            
-    return {"error": "Book not found"}
-
-@app.post('/create-book')
-def create_book(book_request: BookRequest):
-    new_book = Book(**book_request.dict())
-
-    find_book_id(new_book)
-    BOOKS.append(new_book)  
+        if BOOKS[x].id == book.id:
+            BOOKS[x] = book
