@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Path, Query, HTTPException
 from pydantic import BaseModel, Field
-
+from starlette import status
 app = FastAPI()
 
 
@@ -33,7 +33,7 @@ BOOKS = [
 
 
 
-@app.get('/books')
+@app.get('/books', status_code=status.HTTP_200_OK)
 def read_all_books():
     return BOOKS
 
@@ -73,7 +73,7 @@ def read_books_by_publish_date(published_date: int):
 
 
 @app.post('/create-book')
-def create_book(book_request: BookRequest):
+def create_book(book_request: BookRequest, status_code=status.HTTP_201_CREATED):
     new_book = Book(**book_request.dict())
 
     find_book_id(new_book)
