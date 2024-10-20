@@ -5,13 +5,13 @@ app = FastAPI()
 
 
 class Book:
-    def __init__(self, id: int, title: str, author: str, description: str, rating: int):
+    def __init__(self, id: int, title: str, author: str, description: str, rating: int, publish_date):
         self.id = id
         self.title = title
         self.author = author
         self.description = description
         self.rating = rating
-
+        self.publish_date = publish_date
 
 
 class BookRequest(BaseModel):
@@ -20,15 +20,15 @@ class BookRequest(BaseModel):
     author: str = Field(min_length=1)
     description: str = Field(min_length=1, max_length=100)  
     rating: int = Field(gt=0, lt=6)
-
+    publish_date : int
 
 
 
 BOOKS = [
-    Book(1, 'Shoe Dog', 'Folani', 'How Nike makes', 8),
-    Book(2, 'Roobi', 'Folan kas', 'It\'s about a fox that goes to prison', 3),
-    Book(3, 'Shafaei Zendegi', 'Giti', 'It\'s about the soul of a human', 9),
-    Book(4, 'You Don\'t Know JS Yet', '...', 'It\'s about JavaScript', 9)
+    Book(1, 'Shoe Dog', 'Folani', 'How Nike makes', 8, 2024),
+    Book(2, 'Roobi', 'Folan kas', 'It\'s about a fox that goes to prison', 3, 2019),
+    Book(3, 'Shafaei Zendegi', 'Giti', 'It\'s about the soul of a human', 9, 2023),
+    Book(4, 'You Don\'t Know JS Yet', '...', 'It\'s about JavaScript', 9, 2009)
 ]
 
 
@@ -60,6 +60,16 @@ def read_book_by_rating(book_rating: int):
             books_to_return.append(book)
 
         return books_to_return
+
+@app.get('/book/publish')
+def read_books_by_publish_date(published_date: int):
+    books_to_return = []
+
+    for book in BOOKS:
+        if book.publish_date == published_date:
+            books_to_return.append(book)
+    return books_to_return
+
 
 
 
