@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, Path
-from models import *
+import models
 
 from database import engine, SessionLocal
 from typing import Annotated
@@ -33,7 +33,7 @@ db_depensy = Annotated[session, Depends(get_db)]
 
 
 
-class TodoRequest():
+class TodoRequest(BaseModel):
     title: str
     descreption: str
     priorty: int
@@ -70,17 +70,28 @@ def create_todo(db: db_depensy, todo_request: TodoRequest):
 
 @app.put('/todo/{todo_id}', status_code=status.HTTP_204_NO_CONTENT)
 def update_todo(db: db_depensy, todo_id: int, todo_request: TodoRequest):
-    
+
     TODO_MODEL = db.query(Todos).filter(Todos.id == todo_id).first()
 
     if TODO_MODEL is None:
         raise HTTPException(status_code=404, detail='TODO NOT FOUND!!!')
 
     TODO_MODEL.title = todo_request.title
-    TODO_MODEL.descreption = todo_request.descreption
-    TODO_MODEL.priorty = todo_request.priorty
+    TODO_MODEL.description = todo_request.description
+    TODO_MODEL.priority = todo_request.priority
     TODO_MODEL.complete = todo_request.complete
 
+    db.commit()
 
-    db.add(TODO_MODEL)
+
+
+
+@app.delete('/todo/{todo_id}', status_code=status.HTTP_204_NO_CONTENT)
+def delete_todo(db: db_depensy, todo_id: int):
+    todo_model = db.query(Todos).filter(Todos.id == todo_id).first()
+
+    if todo_model is None:
+        raise HTTPException(status_code=404, detail='TODO NOT FOUND!!!')
+
+    db.query(Todos).filter(Todos.id == todo_id).delete()
     db.commit()
