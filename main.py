@@ -64,3 +64,23 @@ def create_todo(db: db_depensy, todo_request: TodoRequest):
 
     db.add(todo_model)
     db.commit()
+
+
+
+
+@app.put('/todo/{todo_id}', status_code=status.HTTP_204_NO_CONTENT)
+def update_todo(db: db_depensy, todo_id: int, todo_request: TodoRequest):
+    
+    TODO_MODEL = db.query(Todos).filter(Todos.id == todo_id).first()
+
+    if TODO_MODEL is None:
+        raise HTTPException(status_code=404, detail='TODO NOT FOUND!!!')
+
+    TODO_MODEL.title = todo_request.title
+    TODO_MODEL.descreption = todo_request.descreption
+    TODO_MODEL.priorty = todo_request.priorty
+    TODO_MODEL.complete = todo_request.complete
+
+
+    db.add(TODO_MODEL)
+    db.commit()
