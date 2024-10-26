@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException, Path, APIRouter
 from typing import Annotated
-from sqlalchemy.orm import session
+from sqlalchemy.orm import session, sessionmaker
 from starlette import status
 from pydantic import BaseModel
 
@@ -19,8 +19,8 @@ db_depensy = Annotated[session, Depends(get_db)]
 
 class TodoRequest(BaseModel):
     title: str
-    description: str  # Corrected spelling
-    priority: int     # Corrected spelling
+    description: str  
+    priority: int     
     complete: bool
 
 @router.get('/')
