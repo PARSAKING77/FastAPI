@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import BaseModel
 from models import Users
 from passlib.context import CryptContext
 from database import SessionLocal
 from typing import Annotated
 from sqlalchemy.orm import session
-from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from jose import jwt, JWTError
 from datetime import timedelta
 
 
@@ -17,6 +17,8 @@ algorithm1 = 'HS256'
 
 bcrypt_contaxt = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
+
+oauth2_baerer = OAuth2PasswordBearer(tokenUrl='token')
 
 class CreateUserRequest(BaseModel):
 
@@ -65,6 +67,23 @@ def create_access_token(username: str, user_id: int, expires_delta: timedelta):
     
 
     return jwt.encode(encode, secret, algorithm=algorithm1)
+
+
+def get_current_user(token: Annotated[str, Depends(oauth2_baerer)]):
+    
+    try:
+        paylod = jwt.decode(token, secret, algorithms=[algorithm1])
+        username: str = paylod.get('sub')
+        user_id: int = paylod.get('id')
+
+        if username is not None or user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
+        
+        return {'username': username, 'id': user_id}
+    except JWTError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
+ 
+    
 
 
 
