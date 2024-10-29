@@ -120,7 +120,8 @@ def login_for_access_token(from_data: Annotated[OAuth2PasswordRequestForm, Depen
     user = authenticate_user(from_data.username, from_data.password, db)
 
     if not user:
-        return 'Failed Authenticatio'
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
+
 
 
     token1 = create_access_token(user.username, user.id, timedelta(minutes=20))
