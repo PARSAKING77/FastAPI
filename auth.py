@@ -75,11 +75,12 @@ def get_current_user(token: Annotated[str, Depends(oauth2_baerer)]):
         paylod = jwt.decode(token, secret, algorithms=[algorithm1])
         username: str = paylod.get('sub')
         user_id: int = paylod.get('id')
+        user_role: str = paylod.get('role')
 
         if username is not None or user_id is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
         
-        return {'username': username, 'id': user_id}
+        return {'username': username, 'id': user_id, 'user_role': user_role}
     except JWTError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
  
@@ -124,7 +125,7 @@ def login_for_access_token(from_data: Annotated[OAuth2PasswordRequestForm, Depen
 
 
 
-    token1 = create_access_token(user.username, user.id, timedelta(minutes=20))
+    token1 = create_access_token(user.username, user.id, user.role, timedelta(minutes=20))
 
 
     return {'access_token': token1, 'token_type': 'bearer'}
