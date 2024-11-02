@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Depends, HTTPException, Path, APIRouter
+from fastapi import APIRouter, Depends, HTTPException, Path
 from typing import Annotated
-from sqlalchemy.orm import session, sessionmaker
+from sqlalchemy.orm import session
 from starlette import status
 from pydantic import BaseModel
+from models import Todos
 from .auth import get_current_user
-
 router = APIRouter()
-
 
 def get_db():
     db = SessionLocal()
@@ -15,10 +14,8 @@ def get_db():
     finally:
         db.close()
 
-db_depensy = Annotated[session, Depends(get_db)]
-
-user_depensy = Annotated[dict, Depends(get_current_user)]
-
+db_dependency = Annotated[session, Depends(get_db)]
+user_dependency = Annotated[dict, Depends(get_current_user)]
 
 class TodoRequest(BaseModel):
     title: str
@@ -27,20 +24,18 @@ class TodoRequest(BaseModel):
     complete: bool
 
 @router.get('/')
-def read_all(user: user_depensy, db: db_depensy):
+def read_all(user: user_dependency, db: db_dependency):
     if user is None:
         raise HTTPException(status_code=401, detail='Authentication Failed!!!')
 
     return db.query(Todos).filter(Todos.owner_id == user.get('id')).all()
 
 @router.get('/todo/{todo_id}', status_code=status.HTTP_200_OK)
-
-def read_todo(user: user_depensy, db: db_depensy, todo_id: int = Path(gt=0)):
-
-    todo_model = db.query(models.Todos).filter(Todos.id == todo_id).filter(Todos.owner_id == user.get('id')).first()
+def read_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0)):
+    todo_model = db.query(Todos).filter(Todos.id == todo_id).filter(Todos.owner_id == user.get('id')).first()
     
     if todo_model is not None:
-
+    
         return todo_model
 
     raise HTTPException(status_code=404, detail='Todo not found!!!')
