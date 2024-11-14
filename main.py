@@ -12,7 +12,6 @@ app = FastAPI()
 templates = Jinja2Templates(directory="Templates")  
 origins = ["*"]  
 
-# Middleware  
 app.add_middleware(  
     CORSMiddleware,  
     allow_origins=origins,  
