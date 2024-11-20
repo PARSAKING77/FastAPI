@@ -1,19 +1,21 @@
-from typing import Annotated, Union
+from typing import Annotated
 
-from fastapi import Cookie, FastAPI
+from fastapi import FastAPI, Header
 from pydantic import BaseModel
 
 app = FastAPI()
 
 
-class Cookies(BaseModel):
+class CommonHeaders(BaseModel):
     model_config = {"extra": "forbid"}
 
-    session_id: str
-    fatebook_tracker: Union[str, None] = None
-    googall_tracker: Union[str, None] = None
+    host: str
+    save_data: bool
+    if_modified_since: str | None = None
+    traceparent: str | None = None
+    x_tag: list[str] = []
 
 
 @app.get("/items/")
-async def read_items(cookies: Annotated[Cookies, Cookie()]):
-    return cookies
+def read_items(headers: Annotated[CommonHeaders, Header()]):
+    return headers
