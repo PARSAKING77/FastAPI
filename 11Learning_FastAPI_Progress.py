@@ -1,26 +1,30 @@
-from fastapi import Depends, FastAPI, Header, HTTPException
-from typing_extensions import Annotated
+from typing import Annotated
+
+from fastapi import Depends, FastAPI, HTTPException
+
+app = FastAPI()
 
 
-async def verify_token(x_token: Annotated[str, Header()]):
-    if x_token != "fake-super-secret-token":
-        raise HTTPException(status_code=400, detail="X-Token header invalid")
+class InternalError(Exception):
+    pass
 
 
-async def verify_key(x_key: Annotated[str, Header()]):
-    if x_key != "fake-super-secret-key":
-        raise HTTPException(status_code=400, detail="X-Key header invalid")
-    return x_key
+def get_username():
+    try:
+        yield "Rick"
+    except InternalError:
+        print("We don't swallow the internal error here, we raise again 😎")
+        raise
 
 
-app = FastAPI(dependencies=[Depends(verify_token), Depends(verify_key)])
-
-
-@app.get("/items/")
-async def read_items():
-    return [{"item": "Portal Gun"}, {"item": "Plumbus"}]
-
-
-@app.get("/users/")
-async def read_users():
-    return [{"username": "Rick"}, {"username": "Morty"}]
+@app.get("/items/{item_id}")
+def get_item(item_id: str, username: Annotated[str, Depends(get_username)]):
+    if item_id == "portal-gun":
+        raise InternalError(
+            f"The portal gun is too dangerous to be owned by {username}"
+        )
+    if item_id != "plumbus":
+        raise HTTPException(
+            status_code=404, detail="Item not found, there's only a plumbus here"
+        )
+    return item_id
