@@ -1,22 +1,9 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-
-
-class Item(BaseModel):
-    id: str
-    value: str
-
-
-class Message(BaseModel):
-    message: str
-
+from fastapi import FastAPI, Response
 
 app = FastAPI()
 
 
-@app.get("/items/{item_id}", response_model=Item, responses={404: {"model": Message}})
-async def read_item(item_id: str):
-    if item_id == "foo":
-        return {"id": "foo", "value": "there goes my hero"}
-    return JSONResponse(status_code=404, content={"message": "Item not found"})
+@app.post("/cookie-and-object/")
+def create_cookie(response: Response):
+    response.set_cookie(key="fakesession", value="fake-cookie-session-value")
+    return {"message": "Come to the dark side, we have cookies"}
