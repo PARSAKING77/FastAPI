@@ -1,22 +1,25 @@
-from fastapi import FastAPI
+from typing import Annotated
+
+from fastapi import Body, FastAPI, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
-
-
-class Item(BaseModel):
-    id: str
-    value: str
-
-
-class Message(BaseModel):
-    message: str
-
 
 app = FastAPI()
 
+items = {"foo": {"name": "Fighters", "size": 6}, "bar": {"name": "Tenders", "size": 3}}
 
-@app.get("/items/{item_id}", response_model=Item, responses={404: {"model": Message}})
-async def read_item(item_id: str):
-    if item_id == "foo":
-        return {"id": "foo", "value": "there goes my hero"}
-    return JSONResponse(status_code=404, content={"message": "Item not found"})
+
+@app.put("/items/{item_id}")
+async def upsert_item(
+    item_id: str,
+    name: Annotated[str | None, Body()] = None,
+    size: Annotated[int | None, Body()] = None,
+):
+    if item_id in items:
+        item = items[item_id]
+        item["name"] = name
+        item["size"] = size
+        return item
+    else:
+        item = {"name": name, "size": size}
+        items[item_id] = item
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=item)
