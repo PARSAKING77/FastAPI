@@ -1,13 +1,19 @@
 from fastapi import FastAPI
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 app = FastAPI()
 
-app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=["example.com", "*.example.com"]
-)
+
+@app.get("/app")
+def read_main():
+    return {"message": "Hello World from main app"}
 
 
-@app.get("/")
-async def main():
-    return {"message": "Hello World"}
+subapi = FastAPI()
+
+
+@subapi.get("/sub")
+def read_sub():
+    return {"message": "Hello World from sub API"}
+
+
+app.mount("/subapi", subapi)
