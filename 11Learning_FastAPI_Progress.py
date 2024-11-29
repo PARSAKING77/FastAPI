@@ -1,13 +1,9 @@
-from typing import Annotated
-
-from fastapi import Depends, FastAPI
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import FastAPI, Request
 
 app = FastAPI()
 
-security = HTTPBasic()
 
-
-@app.get("/users/me")
-def read_current_user(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
-    return {"username": credentials.username, "password": credentials.password}
+@app.get("/items/{item_id}")
+def read_root(item_id: str, request: Request):
+    client_host = request.client.host
+    return {"client_host": client_host, "item_id": item_id}
