@@ -1,20 +1,13 @@
-from dataclasses import dataclass
-from typing import Union
-
 from fastapi import FastAPI
-
-
-@dataclass
-class Item:
-    name: str
-    price: float
-    description: Union[str, None] = None
-    tax: Union[float, None] = None
-
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 app = FastAPI()
 
+app.add_middleware(
+    TrustedHostMiddleware, allowed_hosts=["example.com", "*.example.com"]
+)
 
-@app.post("/items/")
-async def create_item(item: Item):
-    return item
+
+@app.get("/")
+async def main():
+    return {"message": "Hello World"}
